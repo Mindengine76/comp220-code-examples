@@ -158,11 +158,13 @@ copy ..\Libraries\assimp-4.1.0\bin\x64\assimp-vc140-mt.dll "$(OutDir)\assimp-vc1
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Shaders.h" />
     <ClInclude Include="Texture.h" />

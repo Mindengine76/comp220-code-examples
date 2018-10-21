@@ -12,6 +12,7 @@
 #include "Vertex.h"
 #include "Texture.h"
 #include "Model.h"
+#include "Mesh.h"
 
 int main(int argc, char ** argsv)
 {
@@ -70,56 +71,10 @@ int main(int argc, char ** argsv)
 
 	glEnable(GL_DEPTH_TEST);
 
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
+	//Load Mesh
+	MeshCollection * tankMesh = new MeshCollection();
+	loadMeshFromFile("Tank1.FBX",tankMesh);
 
-	// This will identify our vertex buffer
-	GLuint vertexbuffer;
-	// Generate 1 buffer, put the resulting identifier in vertexbuffer
-	glGenBuffers(1, &vertexbuffer);
-	// The following commands will talk about our 'vertexbuffer' buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-	GLuint elementbuffer;
-	glGenBuffers(1, &elementbuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-
-	unsigned int numberOfVerts = 0;
-	unsigned int numberOfIndices = 0;
-
-	loadModelFromFile("Tank1.FBX", vertexbuffer, elementbuffer, numberOfVerts, numberOfIndices);
-
-	// 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		sizeof(Vertex),                  // stride
-		(void*)0            // array buffer offset
-	);
-
-	// 1st attribute buffer : colours
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		4,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		sizeof(Vertex),                  // stride
-		(void*)(3*sizeof(float))            // array buffer offset
-	);
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(
-		2, 
-		2, 
-		GL_FLOAT, 
-		GL_FALSE, 
-		sizeof(Vertex), 
-		(void*)(7 * sizeof(float))
-	);
 
 	GLuint textureID = loadTextureFromFile("Tank1DF.png");
 
@@ -191,10 +146,9 @@ int main(int argc, char ** argsv)
 
 		glUseProgram(programID);
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, textureID);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureID);
 
-		glBindVertexArray(VertexArrayID);
 
 		//send the uniforms across
 		glUniformMatrix4fv(modelMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -202,14 +156,16 @@ int main(int argc, char ** argsv)
 		glUniformMatrix4fv(projectionMatrixUniformLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 		glUniform1i(baseTextureLocation, 0);
 
-		glDrawElements(GL_TRIANGLES, numberOfIndices, GL_UNSIGNED_INT, (void*)0);
+		tankMesh->render();
+
 		SDL_GL_SwapWindow(window);
 	}
-
-	glDeleteBuffers(1, &vertexbuffer);
-	glDeleteBuffers(1, &elementbuffer);
-	glDeleteVertexArrays(1, &VertexArrayID);
-	//glDeleteTextures(1, &textureID);
+	if (tankMesh)
+	{
+		delete tankMesh;
+		tankMesh = nullptr;
+	}
+	glDeleteTextures(1, &textureID);
 	glDeleteProgram(programID);
 	//Delete Context
 	SDL_GL_DeleteContext(gl_Context);
